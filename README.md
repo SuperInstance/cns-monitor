@@ -18,6 +18,8 @@ Think `htop` for agent signals.
 pip install -e .
 ```
 
+This installs the `cns-monitor` command-line tool.
+
 ## Usage
 
 ```bash

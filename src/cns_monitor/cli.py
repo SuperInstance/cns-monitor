@@ -11,7 +11,7 @@ from pathlib import Path
 from . import __version__
 from .display import CNSDisplay
 from .stats import CNSStats
-from .watcher import CNSWatcher
+from .watcher import CNSWatcher, SignalEvent
 
 
 def default_inbox() -> str:
@@ -63,18 +63,15 @@ def main() -> None:
     stats = CNSStats()
     display = CNSDisplay()
 
-    def on_signal(event):
-        stats.record(event)
-        display.add_event(event)
-        if args.once:
-            display.print_event(event)
-
-    watcher.on_signal(on_signal)
-
     if args.once:
         events = watcher.scan_once()
         if not events:
             print("No signals detected.")
+            sys.exit(0)
+        for event in events:
+            stats.record(event)
+            display.add_event(event)
+            display.print_event(event)
         sys.exit(0)
 
     # Live mode
@@ -85,12 +82,12 @@ def main() -> None:
     console.clear()
 
     with Live(display.render(stats, inbox, outbox), console=console, refresh_per_second=4) as live:
-        def on_signal_live(event):
+        def on_signal_live(event: SignalEvent) -> None:
             stats.record(event)
             display.add_event(event)
             live.update(display.render(stats, inbox, outbox))
 
-        watcher._callbacks = [on_signal_live]
+        watcher.on_signal(on_signal_live)
         watcher.watch()
 
 

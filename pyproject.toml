@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "cns-monitor"
@@ -17,9 +17,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
 
+[project.scripts]
+cns-monitor = "cns_monitor.cli:main"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-cns-monitor = "cns_monitor.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

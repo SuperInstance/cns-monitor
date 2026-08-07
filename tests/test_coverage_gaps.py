@@ -105,8 +105,9 @@ class TestCLILiveMode:
 
                         mock_console.clear.assert_called_once()
 
-    def test_live_mode_replaces_callbacks(self, tmp_path):
-        """Live mode should replace callbacks for live updating."""
+    def test_live_mode_registers_callback_via_on_signal(self, tmp_path):
+        """Live mode should register its callback via on_signal(), not
+        direct _callbacks assignment."""
         inbox = tmp_path / "inbox"
         outbox = tmp_path / "outbox"
         inbox.mkdir()
@@ -125,8 +126,8 @@ class TestCLILiveMode:
                     ]):
                         cli.main()
 
-                    # _callbacks should be replaced with live callback
-                    assert mock_watcher._callbacks is not None
+                    # Callback should be registered via on_signal()
+                    mock_watcher.on_signal.assert_called()
 
 
 # ── cli.py edge cases ──────────────────────────────────────────

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from collections import Counter, defaultdict, deque
+from collections import Counter, deque
 from dataclasses import dataclass, field
 from typing import Deque
 
@@ -18,7 +18,6 @@ class CNSStats:
     intent_counts: Counter = field(default_factory=Counter)
     priority_counts: Counter = field(default_factory=Counter)
     agent_signal_counts: Counter = field(default_factory=Counter)
-    agent_target_counts: Counter = field(default_factory=Counter)
     _recent_timestamps: Deque[float] = field(default_factory=lambda: deque(maxlen=100))
     _origin_timestamps: dict[str, float] = field(default_factory=dict)
     _latencies: Deque[float] = field(default_factory=lambda: deque(maxlen=50))
