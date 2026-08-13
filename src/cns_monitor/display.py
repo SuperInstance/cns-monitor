@@ -113,7 +113,16 @@ class CNSDisplay:
 
     def print_event(self, event: SignalEvent) -> None:
         """Print a single event as a one-liner (for non-live mode)."""
-        ts_short = event.timestamp[11:19] if len(event.timestamp) >= 19 else event.timestamp[:8]
+        ts_raw = event.timestamp
+        if isinstance(ts_raw, (int, float)):
+            from datetime import datetime, timezone
+            ts_short = datetime.fromtimestamp(ts_raw, tz=timezone.utc).strftime("%H:%M:%S")
+        elif isinstance(ts_raw, str) and len(ts_raw) >= 19:
+            ts_short = ts_raw[11:19]
+        elif isinstance(ts_raw, str):
+            ts_short = ts_raw[:8]
+        else:
+            ts_short = "?"
         icon = DIRECTION_ICONS.get(event.direction, "?")
         pri_style = PRIORITY_COLORS.get(event.priority, "white")
         self.console.print(

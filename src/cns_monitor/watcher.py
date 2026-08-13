@@ -39,20 +39,48 @@ class SignalEvent:
         except (json.JSONDecodeError, OSError):
             return None
 
-        header = data.get("header", {})
-        body = data.get("body", {})
-        payload = body.get("payload", {})
+        # Support both USCP (header/body/signature) and flat packet formats
+        if isinstance(data.get("header"), dict):
+            # USCP format
+            header = data.get("header", {})
+            body = data.get("body", {}) if isinstance(data.get("body"), dict) else {}
+            payload = body.get("payload", {})
+            if not isinstance(payload, dict):
+                payload = {}
+            origin_id = header.get("origin_id", "?")
+            timestamp = header.get("timestamp", "?")
+            if isinstance(timestamp, (int, float)):
+                from datetime import datetime, timezone
+                timestamp = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            priority = header.get("priority", "?")
+            sequence_id = header.get("sequence_id")
+            intent = body.get("intent", "?")
+            payload_type = payload.get("type", "?")
+        else:
+            # Flat packet format (lucineer pulse, hermes task, etc.)
+            origin_id = data.get("from", "?")
+            timestamp = data.get("timestamp", "?")
+            if isinstance(timestamp, (int, float)):
+                from datetime import datetime, timezone
+                timestamp = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            priority = data.get("priority", "?")
+            sequence_id = data.get("pulse_number") or data.get("sequence_id")
+            intent = data.get("type", "?")
+            payload = data.get("content", {})
+            if not isinstance(payload, dict):
+                payload = {}
+            payload_type = payload.get("signal", data.get("type", "?"))
 
         return cls(
             filepath=filepath,
             filename=filepath.name,
             direction=direction,
-            origin_id=header.get("origin_id", "?"),
-            timestamp=header.get("timestamp", "?"),
-            priority=header.get("priority", "?"),
-            sequence_id=header.get("sequence_id"),
-            intent=body.get("intent", "?"),
-            payload_type=payload.get("type", "?"),
+            origin_id=origin_id,
+            timestamp=timestamp,
+            priority=priority,
+            sequence_id=sequence_id,
+            intent=intent,
+            payload_type=payload_type,
             raw=data,
             file_mtime=filepath.stat().st_mtime,
         )
