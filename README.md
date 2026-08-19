@@ -4,6 +4,8 @@ Real-time traffic monitor for the **CNS (Central Nervous System)** ecosystem. Wa
 
 Think `htop` for agent signals.
 
+![Signal Watch — a ship bridge at night, a large brass-rimmed terminal screen glowing like htop, scrolling amber telemetry columns, thin navy wires running from the screen out through the dark hull toward unseen rooms](assets/images/gallery-cns-monitor.jpg)
+
 ## Features
 
 - **Live dashboard** — rich terminal UI with signal feed, intent distribution, and agent activity
